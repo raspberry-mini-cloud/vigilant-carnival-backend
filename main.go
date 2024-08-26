@@ -23,11 +23,8 @@ var albums = []album{
 
 func main() {
 	router := gin.Default()
-
-	config := cors.Config{
-		AllowOrigins: []string{"http://localhost:3000"},
-		AllowMethods: []string{"GET"},
-	}
+	config := cors.DefaultConfig()
+	config.AllowAllOrigins = true
 	router.Use(cors.New(config))
 
 	router.GET("/albums", getAlbums)
