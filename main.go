@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -23,13 +22,10 @@ var albums = []album{
 
 func main() {
 	router := gin.Default()
-	config := cors.DefaultConfig()
-	config.AllowAllOrigins = true
-	router.Use(cors.New(config))
 
 	router.GET("/albums", getAlbums)
 
-	router.Run("localhost:5000")
+	router.Run("0.0.0.0:5000")
 }
 
 // getAlbums responds with the list of all albums as JSON.
