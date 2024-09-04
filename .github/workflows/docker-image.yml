@@ -3,8 +3,8 @@ name: Publish docker image
 on:
   push:
     branches:
-      - "main"
       - "master"
+      - "main"
 
 jobs:
   docker:
