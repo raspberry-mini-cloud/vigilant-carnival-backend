@@ -8,6 +8,8 @@ RUN go mod download
 
 COPY *.go ./
 
+WORKDIR /app/cmd/app
+
 RUN CGO_ENABLED=0 GOOS=linux go build -o /vigilant-carnival-backend
 
 EXPOSE 5000
