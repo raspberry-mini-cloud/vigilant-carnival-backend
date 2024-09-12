@@ -6,9 +6,9 @@ COPY go.mod go.sum ./
 
 RUN go mod download
 
-COPY *.go ./
+COPY ./cmd ./cmd
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o /vigilant-carnival-backend/cmd/app
+RUN CGO_ENABLED=0 GOOS=linux go build -o /vigilant-carnival-backend/cmd/app ./cmd
 
 EXPOSE 5000
 
