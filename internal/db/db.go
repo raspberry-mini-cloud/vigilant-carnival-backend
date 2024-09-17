@@ -14,7 +14,9 @@ func InitDB() {
 	postgres_password := os.Getenv("POSTGRES_PASSWORD")
 
 	connStr := fmt.Sprintf("postgres://postgres:%s@10.40.125.129:5432/coolkeeper_data?sslmode=disable", postgres_password)
-    Db, err := sql.Open("postgres", connStr)
+
+    var err error
+    Db, err = sql.Open("postgres", connStr)
     if err != nil {
         log.Fatal("Failed to init to the database:", err)
     }
@@ -24,5 +26,4 @@ func InitDB() {
     if err != nil {
         log.Fatal("Failed to connect to the database:", err)
     }
-
 }
