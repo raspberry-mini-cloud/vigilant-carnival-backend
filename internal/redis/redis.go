@@ -37,3 +37,9 @@ func AddTemperatureData(timestamp int64, temperature float64) {
 		log.Fatalln(err)
 	}
 }
+
+func CheckKeyExists(key string)(bool) {
+	result := RedisClient.Exists(Context, key)
+
+	return (result.Val() > 0)
+}
