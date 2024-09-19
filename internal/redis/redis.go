@@ -1,17 +1,21 @@
 package redis
 
 import (
-	"github.com/redis/go-redis/v9"
-	"fmt"
 	"context"
+	"fmt"
 	"log"
-)
+	. "project/internal/models"
+	"time"
+
+	"github.com/redis/go-redis/v9"
+)	
 
 var RedisClient *redis.Client
+var Context context.Context
 
-func InitRedis() {
-    ctx := context.Background()
+func InitRedis(ctx context.Context) {
 
+	Context = ctx
 
 	RedisClient = redis.NewClient(&redis.Options{
         Addr:	  "10.40.125.129:6379",
@@ -25,5 +29,11 @@ func InitRedis() {
         log.Fatalln("Redis connection was refused")
     }
     fmt.Println(pong)
+}
 
+func AddTemperatureData(timestamp int64, temperature float64) {
+	err := RedisClient.Do(Context, "TS.ADD", "temperature_readings", timestamp, temperature).Err()
+	if err != nil {
+		log.Fatalln(err)
+	}
 }
