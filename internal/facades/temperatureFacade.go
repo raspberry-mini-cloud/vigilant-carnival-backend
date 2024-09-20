@@ -5,6 +5,7 @@ import (
 	"net/http"
 	db "project/internal/db"
 	. "project/internal/models"
+	"project/internal/redis"
 	. "project/internal/utils"
 
 	"github.com/gin-gonic/gin"
@@ -23,6 +24,18 @@ func GetTemperatureDataInSpan(c *gin.Context) {
 	if err !=nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid end timestamp format"})
 	}
+
+	if (redis.CheckKeyExists("temperature_readings")) {
+		// Return a success response
+		c.JSON(http.StatusOK, gin.H{
+			"result": redis.GetAllTemperatureData(),
+		})
+		log.Println("Cache hit")
+		return
+	}
+
+	log.Println("Cache miss")
+
 
 	sqlStatement := `
 		SELECT temperature, timestamp FROM temperature_data WHERE "timestamp" BETWEEN $1 AND $2`
@@ -52,6 +65,9 @@ func GetTemperatureDataInSpan(c *gin.Context) {
         return
     }
 
+	log.Println("Populating redis cache")
+	redis.PopulateRedisCache(temperatures)
+
 	// Return a success response
 	c.JSON(http.StatusOK, gin.H{
 		"result": temperatures,
@@ -65,7 +81,7 @@ func PostTemperatureData(c *gin.Context) {
 	if err := c.ShouldBindJSON(&tempData); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
-	}
+	}	
 
 	sqlStatement := `
 		INSERT INTO temperature_data (temperature, timestamp)
@@ -78,6 +94,10 @@ func PostTemperatureData(c *gin.Context) {
 		log.Println("Failed to insert data:", err)
 		return
 	}
+
+	formattedTime := tempData.Timestamp.Unix()
+
+	redis.AddTemperatureData(formattedTime, tempData.Temperature)
 
 	// Return a success response
 	c.JSON(http.StatusOK, gin.H{
@@ -104,7 +124,7 @@ func DeleteTemperatureData(c *gin.Context) {
 
 	// Return a success response
 	c.JSON(http.StatusOK, gin.H{
-		"status":     "success",
+		"status": "success",
 		"id": id,
 	})
 }
